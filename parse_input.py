@@ -1,8 +1,6 @@
 import sys
 import gzip
-from collections import Counter
-import pandas as pd
-
+import json
 
 def parse_input(file_paths):
     input_seqs = []
@@ -27,35 +25,13 @@ def parse_input(file_paths):
 
     return input_seqs
 
-def kmer_counter(sequence, k):
-    kmer_count = Counter()
-    k = int(k)
-    for i in range((len(sequence)) - k + 1):
-        kmer = sequence[i:i+k]
-        kmer_count[kmer] += 1
-
-    return kmer_count
-
-def kmer_counter_multi_input(input_list,k):
-    all_inputs_count = []
-    k = int(k)
-    for input in input_list:
-        input_counts = Counter()
-        for sequence in input:
-            input_counts.update(kmer_counter(sequence,k))
-        all_inputs_count.append(input_counts)
-
-    return all_inputs_count
-
-def create_dataframe(all_inputs_count):
-    kmers = set(kmer for counts in all_inputs_count for kmer in counts)
-    pass
-
 if __name__ == "__main__":
     filenames = list(sys.argv[1].split(','))
-    kmer_lengths = list(sys.argv[2].split(','))
 
-    inputs = parse_input(filenames)
-    for k in kmer_lengths:
-        counts = kmer_counter_multi_input(inputs,k)
+    input_seqs = parse_input(filenames)
+
+    with open('input_seqs.json', 'w') as output:
+        json.dump(input_seqs, output)
+
+    print("Sequences have been successfully saved to 'input_seqs.json'")
 
