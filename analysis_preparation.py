@@ -1,6 +1,8 @@
 import sys
 import json
 
+import numpy as np
+
 
 def load_and_parse_kmer_data(file_path):
     try:
@@ -28,6 +30,36 @@ def load_and_parse_kmer_data(file_path):
 
     return parsed_data
 
+
+
+def calculate_descriptive_statistics(kmer_data):
+    stats = {}
+    for kmer_size, species_data in kmer_data.items():
+        stats[kmer_size] = {}
+        for i, species in enumerate(species_data):
+            species_name = f"species_{i + 1}"
+            frequencies = list(species.values())
+            stats[kmer_size][species_name] = {
+                "mean": np.mean(frequencies),
+                "median": np.median(frequencies),
+                "variance": np.var(frequencies),
+                "std_dev": np.std(frequencies),
+                "range": (min(frequencies), max(frequencies))
+            }
+    return stats
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 if __name__ == "__main__":
 
     # Load the file path from command-line arguments
@@ -42,3 +74,4 @@ if __name__ == "__main__":
 
     # Print the loaded data structure for debugging purposes
     print("Successfully loaded and parsed k-mer data!")
+"""
