@@ -11,17 +11,23 @@ def kmer_counter(sequence, k):
 
     return kmer_count
 
-def kmer_counter_multi_input(input_list,k_values):
+def kmer_counter_multi_input(sequences_by_species,k_values):
     result = {}
     for k in k_values:
         k = int(k)
         all_inputs_count = []
-        for input in input_list:
-            input_counts = Counter()
-            for sequence in input:
-                input_counts.update(kmer_counter(sequence, k))
-            all_inputs_count.append(dict(input_counts))
+        for species_sequences in sequences_by_species:
+            counts_per_species = Counter()
+            for sequence in species_sequences:
+                counts_per_species.update(kmer_counter(sequence, k))
+
+            # sort the k-mers by highest count
+            dictionary = dict(counts_per_species)
+            sorted_dictionary = dict(sorted(dictionary.items(),reverse=True,key=lambda item: item[1]))
+            all_inputs_count.append(sorted_dictionary)
+
         result[f'k={k}'] = all_inputs_count
+
 
     return result
 
