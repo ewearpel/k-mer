@@ -28,8 +28,19 @@ def kmer_counter_multi_input(sequences_by_species,k_values):
 
         result[f'k={k}'] = all_inputs_count
 
-
     return result
+
+def count_sequence_length(sequences_by_species):
+    sequence_lengths = {}
+    for index,species in enumerate(sequences_by_species):
+        length = 0
+        for sequence in species:
+            length = length + len(sequence)
+        sequence_lengths[f'species_{index+1}'] = length
+
+    print(sequence_lengths)
+    return sequence_lengths
+
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
@@ -38,9 +49,15 @@ if __name__ == '__main__':
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    kmer_counts = kmer_counter_multi_input(seqs, k_values)
+    #kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
-    with open('kmer_counts.json', 'w') as output:
-        json.dump(kmer_counts, output)
+    #with open('kmer_counts.json', 'w') as output:
+    #    json.dump(kmer_counts, output)
 
     print("k-mer count dictionaries have been successfully saved to 'kmer_counts.json'")
+
+    sequence_length = count_sequence_length(seqs)
+
+    with open('sequence_lengths.json', 'w') as output:
+        json.dump(sequence_length, output)
+
