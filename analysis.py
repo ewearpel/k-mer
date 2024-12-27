@@ -1,7 +1,7 @@
 import sys
 import json
-
 import numpy as np
+import pandas as pd
 
 
 def load_and_parse_kmer_data(file_path):
@@ -66,6 +66,32 @@ def calculate_descriptive_statistics(kmer_data):
     return stats, normalized_stats
 
 
+def statistics_to_table(calculated_statistics):
+    # initialize table structure
+    table_data = {
+        "Statistic": ["mean", "median", "variance", "std_dev", "range"]  # Row names
+    }
+
+    # fill the columns dynamically from JSON
+    for kmer_size, species_data in calculated_statistics.items():
+        for species_name, species_stats in species_data.items():  # Avoid overwriting `stats`
+            column_name = f"{kmer_size} for {species_name}"
+            table_data[column_name] = [
+                species_stats["mean"],
+                species_stats["median"],
+                species_stats["variance"],
+                species_stats["std_dev"],
+                species_stats["range"]
+            ]
+
+    # Create a DataFrame
+    table_df = pd.DataFrame(table_data)
+
+    return table_df
+
+
+
+
 if __name__ == "__main__":
 
     # Load the file path from command-line arguments
@@ -95,31 +121,16 @@ if __name__ == "__main__":
 
     print("Successfully calculated descriptive statistics!")
 
+    # put statistics in a table
+    absolute_table = statistics_to_table(stats)
+    normalized_table = statistics_to_table(normalized_stats)
 
+    # save as csv?
+    # absolute_table.to_csv("absolute_statistics_table.csv", index=False)
+    # normalized_table.to_csv("normalized_statistics_table.csv", index=False)
 
+    print("\nabsolute statistics:") # \n for better visibility
+    print(absolute_table.to_string(index=False))
 
-
-
-
-
-
-
-"""
-def calculate_descriptive_statistics(kmer_data):
-    stats = {}
-    for kmer_size, species_data in kmer_data.items():
-        stats[kmer_size] = {}
-        for i, species in enumerate(species_data):
-            species_name = f"species_{i + 1}"
-            print(species_data)
-            # frequencies = list(species_data.values())
-            frequencies = list(kmer_frequencies.values())
-            stats[kmer_size][species_name] = {
-                "mean": np.mean(frequencies),
-                "median": np.median(frequencies),
-                "variance": np.var(frequencies),
-                "std_dev": np.std(frequencies),
-                "range": (min(frequencies), max(frequencies))
-            }
-    return stats
-"""
+    print("\nnormalized statistics:")
+    print(normalized_table.to_string(index=False))
