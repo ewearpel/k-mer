@@ -1,30 +1,32 @@
+import copy
 import sys
-from collections import Counter
 import json
+from itertools import product
 
-def kmer_counter(sequence, k):
-    kmer_count = Counter()
-    k = int(k)
+def all_kmer_combinations(size):
+    possible_aminoacids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+    # include U?
+    combinations = [''.join(letter) for letter in product(possible_aminoacids, repeat = size)]
+    empty_dictionary = {string: 0 for string in combinations}
+
+    return empty_dictionary
+
+def update_count(counts,sequence,k):
     for i in range((len(sequence)) - k + 1):
-        kmer = sequence[i:i+k]
-        kmer_count[kmer] += 1
-
-    return kmer_count
+        kmer = sequence[i:i + k]
+        counts[kmer] += 1
 
 def kmer_counter_multi_input(sequences_by_species,k_values):
     result = {}
     for k in k_values:
         k = int(k)
         all_inputs_count = []
+        possible_combinations = all_kmer_combinations(k)
         for species_sequences in sequences_by_species:
-            counts_per_species = Counter()
+            counts_per_species = copy.deepcopy(possible_combinations)
             for sequence in species_sequences:
-                counts_per_species.update(kmer_counter(sequence, k))
-
-            # sort the k-mers by highest count
-            dictionary = dict(counts_per_species)
-            sorted_dictionary = dict(sorted(dictionary.items(),reverse=True,key=lambda item: item[1]))
-            all_inputs_count.append(sorted_dictionary)
+                update_count(counts_per_species,sequence,k)
+            all_inputs_count.append(counts_per_species)
 
         result[f'k={k}'] = all_inputs_count
 
@@ -49,10 +51,10 @@ if __name__ == '__main__':
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    #kmer_counts = kmer_counter_multi_input(seqs, k_values)
+    kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
-    #with open('kmer_counts.json', 'w') as output:
-    #    json.dump(kmer_counts, output)
+    with open('kmer_counts.json', 'w') as output:
+        json.dump(kmer_counts, output)
 
     print("k-mer count dictionaries have been successfully saved to 'kmer_counts.json'")
 

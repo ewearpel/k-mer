@@ -2,6 +2,7 @@ import sys
 import json
 import numpy as np
 import pandas as pd
+from scipy.stats import chi2_contingency
 
 
 def load_and_parse_kmer_data(file_path):
@@ -51,7 +52,6 @@ def calculate_descriptive_statistics(kmer_data):
 
             normalized_frequencies = []
             total_length = sequence_lengths.get(species_name, 1) # 1 as default to avoid dividing by zero
-            print(total_length)
             for freq in frequencies:
                 normalized_frequencies.append(freq / total_length)
 
@@ -59,8 +59,8 @@ def calculate_descriptive_statistics(kmer_data):
                 "mean": np.mean(normalized_frequencies),
                 "median": np.median(normalized_frequencies),
                 "variance": np.var(normalized_frequencies),
-                "std_dev": np.std(normalized_frequencies),
-                "range": (min(normalized_frequencies), max(normalized_frequencies))
+                "std_dev": np.std(normalized_frequencies)
+                #, "range": (min(normalized_frequencies), max(normalized_frequencies))
             }
 
     return stats, normalized_stats
@@ -69,7 +69,7 @@ def calculate_descriptive_statistics(kmer_data):
 def statistics_to_table(calculated_statistics):
     # initialize table structure
     table_data = {
-        "Statistic": ["mean", "median", "variance", "std_dev", "range"]  # Row names
+        "Statistic": ["mean", "median", "variance", "std_dev"]  # Row names
     }
 
     # fill the columns dynamically from JSON
@@ -80,8 +80,8 @@ def statistics_to_table(calculated_statistics):
                 species_stats["mean"],
                 species_stats["median"],
                 species_stats["variance"],
-                species_stats["std_dev"],
-                species_stats["range"]
+                species_stats["std_dev"]
+                #, species_stats["range"]
             ]
 
     # Create a DataFrame
@@ -89,6 +89,70 @@ def statistics_to_table(calculated_statistics):
 
     return table_df
 
+def chi_square_test(kmer_data):
+    chi_square_results = {}
+
+    for kmer_size, species_data in kmer_data.items():
+        # prepare contingency table
+        contingency_table = []
+        species_names = []
+        filtered_kmers = set()
+
+        # collect all k-mers that have non-zero counts across all species
+        for species_name, kmer_frequencies in species_data.items():
+            for kmer, count in kmer_frequencies.items():
+                if count > 0: # add kmer when it's count is above 0
+                    filtered_kmers.add(kmer)
+        filtered_kmers = sorted(filtered_kmers)
+
+        # build the contingency table for valid k-mers with normalized frequencies
+        for species_name, kmer_frequencies in species_data.items():
+            normalized_frequencies = []
+            total_length = sequence_lengths.get(species_name, 1)
+
+            for kmer in filtered_kmers:
+                freq = kmer_frequencies.get(kmer, 0)
+                normalized_frequencies.append(freq / total_length)
+
+            contingency_table.append(normalized_frequencies)
+            species_names.append(species_name)
+
+        # perform chi-square test
+        try:
+            chi2, p, dof, expected = chi2_contingency(contingency_table)
+            chi_square_results[kmer_size] = {
+                "chi2_statistic": chi2,
+                "p_value": p,
+                "degrees_of_freedom": dof,
+                "species_names": species_names
+            }
+        except ValueError as e:
+            chi_square_results[kmer_size] = {
+                "error": str(e),
+                "species_names": species_names
+            }
+
+    return chi_square_results
+
+def chi2_to_table(chi_square_results):
+    # initialize table structure
+    table_data = {
+        "results": ["chi2_statistic", "p_value", "degrees_of_freedom", "species_names"]  # Row names
+    }
+
+    for kmer_size, result in chi_square_results.items():
+        column_name = f"{kmer_size}"
+        table_data[column_name] = [
+            result["chi2_statistic"],
+            result["p_value"],
+            result["degrees_of_freedom"],
+            result["species_names"]
+        ]
+
+    # Create a DataFrame
+    chi2_table_df = pd.DataFrame(table_data)
+
+    return chi2_table_df
 
 
 
@@ -134,3 +198,10 @@ if __name__ == "__main__":
 
     print("\nnormalized statistics:")
     print(normalized_table.to_string(index=False))
+
+    chi_square = chi_square_test(kmer_data)
+
+    chi2_table = chi2_to_table(chi_square)
+    print("\nchi square results:")
+    print(chi2_table.to_string(index=False))
+
