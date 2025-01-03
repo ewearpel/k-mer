@@ -1,48 +1,41 @@
-import copy
 import sys
+from collections import Counter
 import json
-from itertools import product
+import pandas as pd
 
-def all_kmer_combinations(size):
-    possible_aminoacids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
-    # include U?
-    combinations = [''.join(letter) for letter in product(possible_aminoacids, repeat = size)]
-    empty_dictionary = {string: 0 for string in combinations}
-
-    return empty_dictionary
-
-def update_count(counts,sequence,k):
+def kmer_counter(sequence, k):
+    kmer_count = Counter()
+    k = int(k)
     for i in range((len(sequence)) - k + 1):
-        kmer = sequence[i:i + k]
-        counts[kmer] += 1
+        kmer = sequence[i:i+k]
+        kmer_count[kmer] += 1
 
-def kmer_counter_multi_input(sequences_by_species,k_values):
+    return kmer_count
+
+def kmer_counter_multi_input(input_list, k_values):
     result = {}
     for k in k_values:
         k = int(k)
         all_inputs_count = []
-        possible_combinations = all_kmer_combinations(k)
-        for species_sequences in sequences_by_species:
-            counts_per_species = copy.deepcopy(possible_combinations)
-            for sequence in species_sequences:
-                update_count(counts_per_species,sequence,k)
-            all_inputs_count.append(counts_per_species)
 
-        result[f'k={k}'] = all_inputs_count
+        input_counts_list = []
+        for input in input_list:
+            input_counts = Counter()
+            for sequence in input:
+                input_counts.update(kmer_counter(sequence, k))
+            input_counts = dict(sorted(input_counts.items(), key=lambda item: item[1], reverse=True))
+            input_counts_list.append(input_counts)
 
+        kmer_table = pd.DataFrame([
+            {kmer: counts.get(kmer, 0) for kmer in set().union(*[counts.keys() for counts in input_counts_list])}
+            for counts in input_counts_list
+        ])
+        kmer_table.index = [f"Input_{i + 1}" for i in range(len(input_list))]
+
+        kmer_table = kmer_table.loc[:, (kmer_table >= 5).all(axis=0)]
+
+        result[f'k={k}'] = kmer_table
     return result
-
-def count_sequence_length(sequences_by_species):
-    sequence_lengths = {}
-    for index,species in enumerate(sequences_by_species):
-        length = 0
-        for sequence in species:
-            length = length + len(sequence)
-        sequence_lengths[f'species_{index+1}'] = length
-
-    print(sequence_lengths)
-    return sequence_lengths
-
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
@@ -53,13 +46,9 @@ if __name__ == '__main__':
 
     kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
-    with open('kmer_counts.json', 'w') as output:
-        json.dump(kmer_counts, output)
+    for k, df in kmer_counts.items():
+        output_file = f'kmer_counts_{k}.tsv'
+        df.to_csv(output_file, sep='\t')
+        print(f"{k}-mer count table saved to {output_file}")
 
-    print("k-mer count dictionaries have been successfully saved to 'kmer_counts.json'")
-
-    sequence_length = count_sequence_length(seqs)
-
-    with open('sequence_lengths.json', 'w') as output:
-        json.dump(sequence_length, output)
-
+    print("k-mer count dictionaries have been successfully saved to 'kmer_counts_k.tsv files.'")
