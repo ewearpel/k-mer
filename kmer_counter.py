@@ -12,7 +12,7 @@ def kmer_counter(sequence, k):
 
     return kmer_count
 
-def kmer_counter_multi_input(input_list, k_values):
+def kmer_counter_multi_input(input_list, k_values, table_inclusion_threshold):
     result = {}
     for k in k_values:
         k = int(k)
@@ -32,7 +32,7 @@ def kmer_counter_multi_input(input_list, k_values):
         ])
         kmer_table.index = [f"Input_{i + 1}" for i in range(len(input_list))]
 
-        kmer_table = kmer_table.loc[:, (kmer_table >= 5).all(axis=0)]
+        kmer_table = kmer_table.loc[:, (kmer_table >= int(table_inclusion_threshold)).all(axis=0)]
 
         result[f'k={k}'] = kmer_table
     return result
@@ -40,11 +40,12 @@ def kmer_counter_multi_input(input_list, k_values):
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
     k_values = list(sys.argv[2].split(','))
+    table_inclusion_threshold = sys.argv[3]
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    kmer_counts = kmer_counter_multi_input(seqs, k_values)
+    kmer_counts = kmer_counter_multi_input(seqs, k_values, table_inclusion_threshold)
 
     for k, df in kmer_counts.items():
         output_file = f'kmer_counts_{k}.tsv'

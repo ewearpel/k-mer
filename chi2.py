@@ -3,8 +3,10 @@ import json
 from scipy.stats import chi2_contingency
 import pandas as pd
 import re
+import numpy as np
 
-
+def cramers_v(chi2, n, r, c):
+    return np.sqrt(chi2 / (n * min(r - 1, c - 1)))
 
 def chi2_test(tsv_paths):
     # store input dataframes in a dictionary
@@ -23,20 +25,40 @@ def chi2_test(tsv_paths):
         with open(path, 'r') as file:
             df = pd.read_csv(file, sep='\t')
             numeric_data = df.select_dtypes(include=["number"])
-            print(numeric_data)
 
             chi2, p, dof, expected = chi2_contingency(numeric_data)
-            chi2_results['chi2'] = float(chi2)
+
+            # also calculate cramers v to illustrate association between rows and columns since
+            # p-values tend to be 0.0
+            n = numeric_data.values.sum()
+            r, c = numeric_data.shape
+            cramers_v_value = cramers_v(chi2, n, r, c)
+
+            chi2_results['chi2'] = round(float(chi2))
             chi2_results['p'] = float(p)
             chi2_results['dof'] = dof
-            chi2_results['expected'] = expected
+            chi2_results['cramers v'] = round(float(cramers_v_value), 3)
 
             chi2_dict[key] = chi2_results
 
     return chi2_dict
 
+def chi2_results_table(chi2_dict, output_path):
+    labels = ['k-mer length']
+    zero_key = list(chi2_dict.keys())[0]
+    add_labels = list(chi2_dict[zero_key].keys())
+    labels = labels + add_labels
+
+    with open(output_path, 'w') as file:
+        file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*labels))
+
+        for key, values in chi2_dict.items():
+            row = [key] + list(values.values())
+            file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*row))
+
+
 if __name__ == '__main__':
     tsv_paths = list(sys.argv[1].split(','))
 
     chi2_dict = chi2_test(tsv_paths)
-    print(chi2_dict)
+    chi2_results_table(chi2_dict, 'chi2_results.txt')
