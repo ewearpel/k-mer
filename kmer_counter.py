@@ -2,6 +2,7 @@ import sys
 from collections import Counter
 import json
 import pandas as pd
+import os
 
 def kmer_counter(sequence, k):
     kmer_count = Counter()
@@ -47,9 +48,24 @@ if __name__ == '__main__':
 
     kmer_counts = kmer_counter_multi_input(seqs, k_values, table_inclusion_threshold)
 
+    # create a folder to store the tsv files in
+    output_folder = "kmer_results"
+    os.makedirs(output_folder, exist_ok=True)
+
+    tsv_files = []
+
+    for k, df in kmer_counts.items():
+        output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
+        df.to_csv(output_file, sep='\t')
+        tsv_files.append(output_file)
+        print(f"{k}-mer count table saved to {output_file}")
+
+    """
+    # save as multiple tsv files
     for k, df in kmer_counts.items():
         output_file = f'kmer_counts_{k}.tsv'
         df.to_csv(output_file, sep='\t')
         print(f"{k}-mer count table saved to {output_file}")
+    """
 
-    print("k-mer count dictionaries have been successfully saved to 'kmer_counts_k.tsv files.'")
+    print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'")

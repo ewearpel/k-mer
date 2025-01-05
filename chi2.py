@@ -1,5 +1,6 @@
 import sys
-import json
+import os
+import glob
 from scipy.stats import chi2_contingency
 import pandas as pd
 import re
@@ -58,7 +59,8 @@ def chi2_results_table(chi2_dict, output_path):
 
 
 if __name__ == '__main__':
-    tsv_paths = list(sys.argv[1].split(','))
+    folder_path = sys.argv[1]
+    tsv_paths = glob.glob(os.path.join(folder_path, '*.tsv'))
 
     chi2_dict = chi2_test(tsv_paths)
     chi2_results_table(chi2_dict, 'chi2_results.txt')
