@@ -38,6 +38,16 @@ def kmer_counter_multi_input(input_list, k_values, table_inclusion_threshold):
         result[f'k={k}'] = kmer_table
     return result
 
+def count_sequence_length(sequences_by_species):
+    sequence_lengths = {}
+    for index,species in enumerate(sequences_by_species):
+        length = 0
+        for sequence in species:
+            length = length + len(sequence)
+        sequence_lengths[f'species_{index+1}'] = length
+
+    return sequence_lengths
+
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
     k_values = list(sys.argv[2].split(','))
@@ -69,3 +79,10 @@ if __name__ == '__main__':
     """
 
     print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'")
+
+    sequence_length = count_sequence_length(seqs)
+
+    with open('sequence_lengths.json', 'w') as output:
+        json.dump(sequence_length, output)
+
+    print("sequence lengths have been successfully saved to 'sequence_lengths.json'")
