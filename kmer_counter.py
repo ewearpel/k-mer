@@ -1,35 +1,41 @@
-import copy
 import sys
+from collections import Counter
 import json
-from itertools import product
+import pandas as pd
+import os
 
-def all_kmer_combinations(size):
-    possible_aminoacids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
-    # include U?
-    combinations = [''.join(letter) for letter in product(possible_aminoacids, repeat = size)]
-    empty_dictionary = {string: 0 for string in combinations}
-
-    return empty_dictionary
-
-def update_count(counts,sequence,k):
+def kmer_counter(sequence, k):
+    kmer_count = Counter()
+    k = int(k)
     for i in range((len(sequence)) - k + 1):
-        kmer = sequence[i:i + k]
-        counts[kmer] += 1
+        kmer = sequence[i:i+k]
+        kmer_count[kmer] += 1
 
-def kmer_counter_multi_input(sequences_by_species,k_values):
+    return kmer_count
+
+def kmer_counter_multi_input(input_list, k_values, table_inclusion_threshold):
     result = {}
     for k in k_values:
         k = int(k)
         all_inputs_count = []
-        possible_combinations = all_kmer_combinations(k)
-        for species_sequences in sequences_by_species:
-            counts_per_species = copy.deepcopy(possible_combinations)
-            for sequence in species_sequences:
-                update_count(counts_per_species,sequence,k)
-            all_inputs_count.append(counts_per_species)
 
-        result[f'k={k}'] = all_inputs_count
+        input_counts_list = []
+        for input in input_list:
+            input_counts = Counter()
+            for sequence in input:
+                input_counts.update(kmer_counter(sequence, k))
+            input_counts = dict(sorted(input_counts.items(), key=lambda item: item[1], reverse=True))
+            input_counts_list.append(input_counts)
 
+        kmer_table = pd.DataFrame([
+            {kmer: counts.get(kmer, 0) for kmer in set().union(*[counts.keys() for counts in input_counts_list])}
+            for counts in input_counts_list
+        ])
+        kmer_table.index = [f"Input_{i + 1}" for i in range(len(input_list))]
+
+        kmer_table = kmer_table.loc[:, (kmer_table >= int(table_inclusion_threshold)).all(axis=0)]
+
+        result[f'k={k}'] = kmer_table
     return result
 
 def count_sequence_length(sequences_by_species):
@@ -40,26 +46,43 @@ def count_sequence_length(sequences_by_species):
             length = length + len(sequence)
         sequence_lengths[f'species_{index+1}'] = length
 
-    print(sequence_lengths)
     return sequence_lengths
-
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
     k_values = list(sys.argv[2].split(','))
+    table_inclusion_threshold = sys.argv[3]
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    kmer_counts = kmer_counter_multi_input(seqs, k_values)
+    kmer_counts = kmer_counter_multi_input(seqs, k_values, table_inclusion_threshold)
 
-    with open('kmer_counts.json', 'w') as output:
-        json.dump(kmer_counts, output)
+    # create a folder to store the tsv files in
+    output_folder = "kmer_results"
+    os.makedirs(output_folder, exist_ok=True)
 
-    print("k-mer count dictionaries have been successfully saved to 'kmer_counts.json'")
+    tsv_files = []
+
+    for k, df in kmer_counts.items():
+        output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
+        df.to_csv(output_file, sep='\t')
+        tsv_files.append(output_file)
+        print(f"{k}-mer count table saved to {output_file}")
+
+    """
+    # save as multiple tsv files
+    for k, df in kmer_counts.items():
+        output_file = f'kmer_counts_{k}.tsv'
+        df.to_csv(output_file, sep='\t')
+        print(f"{k}-mer count table saved to {output_file}")
+    """
+
+    print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'")
 
     sequence_length = count_sequence_length(seqs)
 
     with open('sequence_lengths.json', 'w') as output:
         json.dump(sequence_length, output)
 
+    print("sequence lengths have been successfully saved to 'sequence_lengths.json'")
