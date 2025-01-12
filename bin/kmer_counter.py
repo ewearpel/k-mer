@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 from collections import Counter
 import json
@@ -68,7 +70,7 @@ if __name__ == '__main__':
         output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
         df.to_csv(output_file, sep='\t')
         tsv_files.append(output_file)
-        print(f"{k}-mer count table saved to {output_file}")
+        print(f"{k}-mer count table saved to {output_file}", flush=True)
 
     """
     # save as multiple tsv files
@@ -78,11 +80,11 @@ if __name__ == '__main__':
         print(f"{k}-mer count table saved to {output_file}")
     """
 
-    print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'")
+    print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'", flush=True)
 
     sequence_length = count_sequence_length(seqs)
 
     with open('sequence_lengths.json', 'w') as output:
         json.dump(sequence_length, output)
 
-    print("sequence lengths have been successfully saved to 'sequence_lengths.json'")
+    print("sequence lengths have been successfully saved to 'sequence_lengths.json'", flush=True)
