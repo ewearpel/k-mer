@@ -155,13 +155,8 @@ def chi2_to_table(chi_square_results):
 if __name__ == "__main__":
 
     # Load the file path from command-line arguments
-    folder_path = sys.argv[1]
-    tsv_paths = glob.glob(os.path.join(folder_path, '*.tsv'))
+    tsv_paths = sys.argv[1].split(' ')
     lengths_path = sys.argv[2]
-
-    if not tsv_paths:
-        print(f"No tsv-files found in the folder '{folder_path}'.")
-        sys.exit(1)
 
     with open(lengths_path, 'r') as file:
         sequence_lengths = json.load(file)
@@ -180,10 +175,6 @@ if __name__ == "__main__":
     # put statistics in a table
     absolute_table = statistics_to_table(stats)
     normalized_table = statistics_to_table(normalized_stats)
-
-    # save as csv?
-    # absolute_table.to_csv("absolute_statistics_table.csv", index=False)
-    # normalized_table.to_csv("normalized_statistics_table.csv", index=False)
 
     print("\nabsolute statistics:") # \n for better visibility
     print(absolute_table.to_string(index=False))

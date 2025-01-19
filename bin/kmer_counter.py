@@ -46,7 +46,7 @@ def count_sequence_length(sequences_by_species):
         length = 0
         for sequence in species:
             length = length + len(sequence)
-        sequence_lengths[f'species_{index+1}'] = length
+        sequence_lengths[f'Input_{index+1}'] = length
 
     return sequence_lengths
 

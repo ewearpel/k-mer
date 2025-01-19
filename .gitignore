@@ -1,1 +1,11 @@
 .idea
+kmer_results
+work
+.nextflow
+chi2_results.txt
+descriptive_statistics.json
+input_seqs.json
+normalized_descriptive_statistics.json
+sequence_lengths.json
+.idea/**.*
+
