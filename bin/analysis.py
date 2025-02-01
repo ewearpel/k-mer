@@ -5,8 +5,11 @@ import json
 import numpy as np
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 import glob
-from scipy.stats import chi2_contingency
+
 
 def calculate_descriptive_statistics(kmer_data):
     stats = {}
@@ -45,7 +48,6 @@ def calculate_descriptive_statistics(kmer_data):
 
     return stats, normalized_stats
 
-
 def statistics_to_table(calculated_statistics):
     # initialize table structure
     table_data = {
@@ -69,86 +71,49 @@ def statistics_to_table(calculated_statistics):
 
     return table_df
 
-"""
-# because json.dump cannot serialize numpy type numbers
-def convert_numpy_to_python_types(data):
-    if isinstance(data, dict):
-        return {key: convert_numpy_to_python_types(value) for key, value in data.items()}
-    elif isinstance(data, list):
-        return [convert_numpy_to_python_types(item) for item in data]
-    elif isinstance(data, (np.integer, np.floating)):
-        return data.item()  # convert to native Python type
-    else:
-        return data
-"""
+def plot_statistic_boxplots(calculated_statistics, output_folder="Boxplots",  title_prefix="Descriptive Statistics"):
 
 
-"""
-def chi_square_test(kmer_data):
-    chi_square_results = {}
+    # Convert the nested dictionary into a long-form DataFrame
+    rows = []
+    for kmer_size, species_data in calculated_statistics.items():
+        for species_name, stats in species_data.items():
+            for stat_name, stat_value in stats.items():
+                rows.append({
+                    "kmer_size": kmer_size,
+                    "species_name": species_name,
+                    "statistic": stat_name,
+                    "value": stat_value
+                })
 
-    for kmer_size, species_data in kmer_data.items():
-        # prepare contingency table
-        contingency_table = []
-        species_names = []
-        filtered_kmers = set()
+    stats_df = pd.DataFrame(rows)
 
-        # collect all k-mers that have non-zero counts across all species
-        for species_name, kmer_frequencies in species_data.items():
-            for kmer, count in kmer_frequencies.items():
-                if count > 0: # add kmer when it's count is above 0
-                    filtered_kmers.add(kmer)
-        filtered_kmers = sorted(filtered_kmers)
+    # Get all distinct k-mer sizes from the DataFrame
+    unique_kmers = stats_df["kmer_size"].unique()
 
-        # build the contingency table for valid k-mers with normalized frequencies
-        for species_name, kmer_frequencies in species_data.items():
-            normalized_frequencies = []
-            total_length = sequence_lengths.get(species_name, 1)
+    # For each k-mer size, plot a boxplot of "value" across the different species
+    for kmer in unique_kmers:
+        subset_df = stats_df[stats_df["kmer_size"] == kmer]
 
-            for kmer in filtered_kmers:
-                freq = kmer_frequencies.get(kmer, 0)
-                normalized_frequencies.append(freq / total_length)
+        # If kmer is like "k=2.tsv", remove the ".tsv" part:
+        if kmer.endswith(".tsv"):
+            kmer_base = kmer.replace(".tsv", "")
+        else:
+            kmer_base = kmer
 
-            contingency_table.append(normalized_frequencies)
-            species_names.append(species_name)
+        plt.figure(figsize=(6, 12))
+        # x="species_name" -> side-by-side boxes for each species
+        sns.boxplot(x="species_name", y="value", data=subset_df)
+        plt.title(f"{title_prefix} for k-mer size: {kmer_base}")
+        plt.xlabel("Species")
+        plt.ylabel("Value")
 
-        # perform chi-square test
-        try:
-            chi2, p, dof, expected = chi2_contingency(contingency_table)
-            chi_square_results[kmer_size] = {
-                "chi2_statistic": chi2,
-                "p_value": p,
-                "degrees_of_freedom": dof,
-                "species_names": species_names
-            }
-        except ValueError as e:
-            chi_square_results[kmer_size] = {
-                "error": str(e),
-                "species_names": species_names
-            }
-
-    return chi_square_results
-
-def chi2_to_table(chi_square_results):
-    # initialize table structure
-    table_data = {
-        "results": ["chi2_statistic", "p_value", "degrees_of_freedom", "species_names"]  # Row names
-    }
-
-    for kmer_size, result in chi_square_results.items():
-        column_name = f"{kmer_size}"
-        table_data[column_name] = [
-            result["chi2_statistic"],
-            result["p_value"],
-            result["degrees_of_freedom"],
-            result["species_names"]
-        ]
-
-    # Create a DataFrame
-    chi2_table_df = pd.DataFrame(table_data)
-
-    return chi2_table_df
-"""
+        # Rotate x-labels if you have many species names
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plot_filename = os.path.join(output_folder, f"boxplots_{kmer_base}.png")
+        plt.savefig(plot_filename)
+        plt.show()
 
 
 
@@ -181,5 +146,13 @@ if __name__ == "__main__":
 
     print("\nnormalized statistics:")
     print(normalized_table.to_string(index=False))
+
+    # Make sure the output folder for the boxplots exists:
+    boxplots_folder = "boxplots"
+    os.makedirs(boxplots_folder, exist_ok=True)
+
+    boxplots = plot_statistic_boxplots(normalized_stats)
+
+
 
 
