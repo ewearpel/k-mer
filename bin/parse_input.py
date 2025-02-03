@@ -6,38 +6,62 @@ import json
 import os
 
 def parse_input(file_paths):
-    input_seqs = []
+    """
+    Reads input files (FASTA format), parses them, and stores contained sequences in a list of lists.
+
+    Args:
+        file_paths (list of str): File paths obtained from command line arguments.
+
+    Returns:
+        input_seqs (list of list of str): Each inner list corresponds to one input file,
+        containing all sequences from that file.
+    """
+    input_seqs = [] # initializing list to be returned by the function
 
     for file in file_paths:
-        input_seq = []
-        current_seq = ''
-        file_handle = gzip.open(file, 'rt') if file.endswith(".gz") else open(file, 'r')
+        input_seq = [] # initializing inner list representing input file
+        current_seq = "" # initializing current sequence
 
-        with file_handle as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith(">"):
-                    if current_seq:
-                        input_seq.append(current_seq)
-                        current_seq = ''
+        try:
+            # try opening file either as gzip or as plain text file
+            with (gzip.open(file, 'rt') if file.endswith(".gz") else open(file, 'r')) as f:
+                for line in f: # iterate over lines in file
+                    line = line.strip() # cleans lines from spaces, tabs and newline characters
+                    if line.startswith(">"): # identify fasta headers
+                        if current_seq:
+                            input_seq.append(current_seq) # store current sequence to list of sequences
+                        current_seq = "" # reset current sequence
                     else:
-                        current_seq = ''
-                else:
-                    current_seq += line
-        input_seqs.append(input_seq)
+                        current_seq += line # if no fasta header in the line is detected, append current line to current sequence
+
+                if current_seq:
+                    input_seq.append(current_seq) # if no more lines appear, add current sequence to list of sequences
+
+            input_seqs.append(input_seq) # add list of sequences to the list of lists of sequences
+
+        # if file cannot be read for any reason
+        except (OSError, IOError) as e:
+            print(f"Error reading file {file}: {e}")
+            input_seqs.append([])
 
     return input_seqs
 
 if __name__ == "__main__":
-    filenames = list(sys.argv[1].split(' '))
+    # usage info if wrong number of arguments is passed
+    if len(sys.argv) < 3: # at least two input files are needed for the pipeline to make any sense
+        print("Usage: python parse_input.py <file1> <file2> ... <fileN>")
+        sys.exit(1)
+
+    filenames = list(sys.argv[1:])
 
     # ensure that the filepaths specified on the command line for nf pipeline are processed correctly
     script_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     filenames = [os.path.join(script_dir, file) for file in filenames]
+    print(f"Processing files: {filenames}")
     input_seqs = parse_input(filenames)
 
     with open('input_seqs.json', 'w') as output:
-        json.dump(input_seqs, output)
+        json.dump(input_seqs, output) # dump list of lists of sequences to a json file
 
     print(f"Sequences have been successfully saved to 'input_seqs.json'", flush=True)
 
