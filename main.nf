@@ -20,7 +20,7 @@ params.threshold = 1    // default to 1
  */
 process parseInput {
 	input:
-	val params.input    // uses value of params.input as input for the process
+	val(input_files)    // uses value of input_files as input for the process
 
 	output:
 	path "input_seqs.json", emit: input_seqs    // process produces an output file called "input_seqs.json", labeled as input_seqs for further usage in other processes
@@ -28,7 +28,7 @@ process parseInput {
 	//execute parse_input.py:
 	"""
 	echo "DEBUG: Received params.input path -> ${params.input}"
-	parse_input.py "${params.input}"
+	parse_input.py ${input_files.join(' ')}
 	"""
 }
 
@@ -91,7 +91,9 @@ workflow {
                 error "No input file provided. Use '--input <input_file>' to specify the input."
         }   // check if an input is provided
 
-        parseInput(params.input)
+	def input_files = params.input.split(' ')	
+
+        parseInput(input_files)
 
 	parseInput.out.input_seqs.view { it -> "DEBUG: parseInput.out.input_seqs -> ${it}" }
 
