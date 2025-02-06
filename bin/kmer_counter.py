@@ -7,11 +7,22 @@ import pandas as pd
 import os
 
 def kmer_counter(sequence, k):
-    kmer_count = Counter()
-    k = int(k)
-    for i in range((len(sequence)) - k + 1):
-        kmer = sequence[i:i+k]
-        kmer_count[kmer] += 1
+    """
+    Counts k-mers of defined length and stores counts in a dictionary.
+
+    Args:
+        input sequence (str)
+        k (str): k-mer length
+
+    Returns:
+        kmer_count (dict): {k-mer: count}
+    """
+
+    kmer_count = Counter() # sets up kmer_count as Counter object which is a subclass of dict
+    k = int(k) # converts input string for k-mer length to integer
+    for i in range((len(sequence)) - k + 1): # iterates over the entire sequence
+        kmer = sequence[i:i+k] # defines kmer per iteration
+        kmer_count[kmer] += 1 # value belonging to kmer key is incremented
 
     return kmer_count
 
@@ -19,7 +30,6 @@ def kmer_counter_multi_input(input_list, k_values, table_inclusion_threshold):
     result = {}
     for k in k_values:
         k = int(k)
-        all_inputs_count = []
 
         input_counts_list = []
         for input in input_list:
