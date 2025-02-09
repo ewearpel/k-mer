@@ -16,9 +16,9 @@ def chi2_test(tsv_paths, table_inclusion_threshold):
 
     for path in tsv_paths:
         # retrieve keys (k-mer length) from file names
-        match = re.search(r'k=(\d+)', path)
+        match = re.search(r'k(\d+)', path)
         if match:
-            key = f"k={match.group(1)}"
+            key = f"k{match.group(1)}"
 
         #set up dictionary to be used to store chi2 results
         chi2_results = {}
@@ -57,7 +57,7 @@ def chi2_results_table(chi2_dict, output_path):
         file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*labels))
 
         for key, values in chi2_dict.items():
-            row = [key] + list(values.values())
+            row = [key[1]] + list(values.values())
             file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*row))
 
 

@@ -60,7 +60,7 @@ def kmer_counter_multi_input(input_list, k_values):
         kmer_table.index = filenames
 
 
-        result[f'k={k}'] = kmer_table # create dictionary of tables
+        result[f'k{k}'] = kmer_table # create dictionary of tables
 
     return result
 
@@ -92,30 +92,23 @@ if __name__ == '__main__':
     kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
     # create a folder to store the tsv files in
-    output_folder = "kmer_results"
+    #input_filenames = "_".join([entry["filename"] for entry in seqs])
+    output_folder = f"kmer_results/"
     os.makedirs(output_folder, exist_ok=True)
 
-    tsv_files = []
 
+    # Save k-mer count tables as TSV files
     for k, df in kmer_counts.items():
         output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
         df.to_csv(output_file, sep='\t')
-        tsv_files.append(output_file)
-        print(f"{k}-mer count table saved to {output_file}", flush=True)
+        print(f"{k[1]}-mer count table saved to {output_file}", flush=True)
 
-    """
-    # save as multiple tsv files
-    for k, df in kmer_counts.items():
-        output_file = f'kmer_counts_{k}.tsv'
-        df.to_csv(output_file, sep='\t')
-        print(f"{k}-mer count table saved to {output_file}")
-    """
+    print("k-mer count tables have been successfully saved to the folder 'kmer_results'", flush=True)
 
-    print("k-mer count dictionaries have been successfully saved to the folder 'kmer_results'", flush=True)
-
+    # Calculate and save sequence lengths
     sequence_length = count_sequence_length(seqs)
 
     with open('sequence_lengths.json', 'w') as output:
         json.dump(sequence_length, output)
 
-    print("sequence lengths have been successfully saved to 'sequence_lengths.json'", flush=True)
+    print("Sequence lengths have been successfully saved to 'sequence_lengths.json'", flush=True)

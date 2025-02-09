@@ -21,7 +21,7 @@ def parse_input(file_paths):
     for file in file_paths:
         input_seq = [] # initializing inner list representing input file
         current_seq = "" # initializing current sequence
-        filename = os.path.splitext(os.path.basename(file))[0]  # get filename without suffix
+        filename = '.'.join(os.path.splitext(os.path.basename(file))[0].split('.')[:2])
 
         try:
             # try opening file either as gzip or as plain text file

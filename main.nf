@@ -39,7 +39,6 @@ process kmerCounter {
 	input:
 	path input_seqs     // for using input_seqs from the previous process
 	val kmer
-	val threshold
 
 	output:
 	path "kmer_results/*.tsv", emit: kmer_counts
@@ -48,9 +47,8 @@ process kmerCounter {
 	"""
 	echo "DEBUG: kmerCounter received -> $input_seqs"
         echo "DEBUG: k-mer sizes -> $kmer"
-        echo "DEBUG: threshold -> $threshold"
 	
-	kmer_counter.py $input_seqs $params.kmer $params.threshold
+	kmer_counter.py $input_seqs $params.kmer
 	"""
 }
 
@@ -76,12 +74,13 @@ process chi2 {
     input:
     path kmer_counts
     path sequence_lengths
+    val threshold
 
     output:
     path "chi2_results.txt", emit: chi2_results
 
     """
-    chi2.py "${kmer_counts.join(' ')}"
+    chi2.py "${kmer_counts.join(',')}" $params.threshold
     """
 }
 
@@ -97,12 +96,12 @@ workflow {
 
 	parseInput.out.input_seqs.view { it -> "DEBUG: parseInput.out.input_seqs -> ${it}" }
 
-	kmerCounter(parseInput.out.input_seqs, params.kmer, params.threshold)
+	kmerCounter(parseInput.out.input_seqs, params.kmer)
 
 	kmerCounter.out.kmer_counts.view { it -> "DEBUG: kmer_counts -> ${it}" }
 	kmerCounter.out.sequence_lengths.view { it -> "DEBUG: kmer_counts -> ${it}" }
 
 	analysis(kmerCounter.out.kmer_counts, kmerCounter.out.sequence_lengths)
 
-	chi2(kmerCounter.out.kmer_counts, kmerCounter.out.sequence_lengths)
+	chi2(kmerCounter.out.kmer_counts, kmerCounter.out.sequence_lengths, params.threshold)
 }

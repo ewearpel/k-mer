@@ -71,7 +71,7 @@ def statistics_to_table(calculated_statistics):
 
     return table_df
 
-def plot_statistic_boxplots(calculated_statistics, output_folder="Boxplots",  title_prefix="Descriptive Statistics"):
+def plot_statistic_boxplots(calculated_statistics, output_folder="boxplots",  title_prefix="Descriptive Statistics"):
 
 
     # Convert the nested dictionary into a long-form DataFrame
@@ -113,7 +113,6 @@ def plot_statistic_boxplots(calculated_statistics, output_folder="Boxplots",  ti
         plt.tight_layout()
         plot_filename = os.path.join(output_folder, f"boxplots_{kmer_base}.png")
         plt.savefig(plot_filename)
-        plt.show()
 
 
 
