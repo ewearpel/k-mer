@@ -9,9 +9,10 @@ import numpy as np
 def cramers_v(chi2, n, r, c):
     return np.sqrt(chi2 / (n * min(r - 1, c - 1)))
 
-def chi2_test(tsv_paths):
+def chi2_test(tsv_paths, table_inclusion_threshold):
     # store input dataframes in a dictionary
     chi2_dict = {}
+    table_inclusion_threshold = int(table_inclusion_threshold)
 
     for path in tsv_paths:
         # retrieve keys (k-mer length) from file names
@@ -25,7 +26,9 @@ def chi2_test(tsv_paths):
         #read tsv files, convert df to dict and store in df_dict with appropriate key
         with open(path, 'r') as file:
             df = pd.read_csv(file, sep='\t')
+
             numeric_data = df.select_dtypes(include=["number"])
+            numeric_data = numeric_data.loc[:, (numeric_data >= int(table_inclusion_threshold)).any(axis=0)]
 
             chi2, p, dof, expected = chi2_contingency(numeric_data)
 
@@ -35,7 +38,7 @@ def chi2_test(tsv_paths):
             r, c = numeric_data.shape
             cramers_v_value = cramers_v(chi2, n, r, c)
 
-            chi2_results['chi2'] = round(float(chi2))
+            chi2_results['chi2'] = round(float(chi2), 3)
             chi2_results['p'] = float(p)
             chi2_results['dof'] = dof
             chi2_results['cramers v'] = round(float(cramers_v_value), 3)
@@ -59,7 +62,9 @@ def chi2_results_table(chi2_dict, output_path):
 
 
 if __name__ == '__main__':
-    tsv_paths = sys.argv[1].split(' ')
+    tsv_paths = sys.argv[1].split(',')
+    table_inclusion_threshold = sys.argv[2]
 
-    chi2_dict = chi2_test(tsv_paths)
+
+    chi2_dict = chi2_test(tsv_paths,table_inclusion_threshold)
     chi2_results_table(chi2_dict, 'chi2_results.txt')

@@ -13,14 +13,15 @@ def parse_input(file_paths):
         file_paths (list of str): File paths obtained from command line arguments.
 
     Returns:
-        input_seqs (list of list of str): Each inner list corresponds to one input file,
-        containing all sequences from that file.
+        input_data (list of dictionaries): Each dictionary corresponds to input file, contains filename
+        and sequences.
     """
-    input_seqs = [] # initializing list to be returned by the function
+    input_data = [] # initializing list to be returned by the function
 
     for file in file_paths:
         input_seq = [] # initializing inner list representing input file
         current_seq = "" # initializing current sequence
+        filename = os.path.splitext(os.path.basename(file))[0]  # get filename without suffix
 
         try:
             # try opening file either as gzip or as plain text file
@@ -37,14 +38,14 @@ def parse_input(file_paths):
                 if current_seq:
                     input_seq.append(current_seq) # if no more lines appear, add current sequence to list of sequences
 
-            input_seqs.append(input_seq) # add list of sequences to the list of lists of sequences
+            input_data.append({"filename": filename, "sequences": input_seq})
 
         # if file cannot be read for any reason
         except (OSError, IOError) as e:
             print(f"Error reading file {file}: {e}")
-            input_seqs.append([])
+            input_data.append([])
 
-    return input_seqs
+    return input_data
 
 if __name__ == "__main__":
     # usage info if wrong number of arguments is passed

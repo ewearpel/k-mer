@@ -26,49 +26,70 @@ def kmer_counter(sequence, k):
 
     return kmer_count
 
-def kmer_counter_multi_input(input_list, k_values, table_inclusion_threshold):
+def kmer_counter_multi_input(input_list, k_values):
+    """
+    Counts k-mers for multiple input files and generates k-mer count contingency tables.
+
+    Args:
+        input_list (list of lists): containing one list per input file which in turn contain all sequences of input file
+        k_values (list): list of k-mer lengths
+        table_inclusion_threshold (int): minimal k-mer frequency per cell for column to be included in contingency table
+
+    Returns:
+         result (dict): dictionary containing one contingency table as pd.DataFrame per input k-mer length
+    """
     result = {}
+
     for k in k_values:
-        k = int(k)
+        k = int(k) # convert k string from command line to integer
 
-        input_counts_list = []
-        for input in input_list:
-            input_counts = Counter()
-            for sequence in input:
-                input_counts.update(kmer_counter(sequence, k))
-            input_counts = dict(sorted(input_counts.items(), key=lambda item: item[1], reverse=True))
-            input_counts_list.append(input_counts)
+        input_counts_list = [] # set up list to store Counter() objects for each input file
+        filenames = [] # store filenames in a list
 
-        kmer_table = pd.DataFrame([
-            {kmer: counts.get(kmer, 0) for kmer in set().union(*[counts.keys() for counts in input_counts_list])}
-            for counts in input_counts_list
-        ])
-        kmer_table.index = [f"Input_{i + 1}" for i in range(len(input_list))]
+        for entry in input_list: # iterate over elements in dict representing input files
+            counts = Counter() # set up Counter() object
+            for seq in entry["sequences"]: # iterate over sequences
+                counts.update(kmer_counter(seq, k)) # count k-mers with k_mer counter
+            input_counts_list.append(counts) # append Counter() objects to list
+            filenames.append(entry["filename"]) # append filenames to list
 
-        kmer_table = kmer_table.loc[:, (kmer_table >= int(table_inclusion_threshold)).all(axis=0)]
+        # create pd.DataFrame from Counter() objects
+        kmer_table = pd.DataFrame.from_records(input_counts_list).fillna(0).astype(int)
 
-        result[f'k={k}'] = kmer_table
+        # set index to filenames so that we know which data belongs to which input
+        kmer_table.index = filenames
+
+
+        result[f'k={k}'] = kmer_table # create dictionary of tables
+
     return result
 
+
 def count_sequence_length(sequences_by_species):
-    sequence_lengths = {}
-    for index,species in enumerate(sequences_by_species):
-        length = 0
-        for sequence in species:
-            length = length + len(sequence)
-        sequence_lengths[f'Input_{index+1}'] = length
+    """
+        Calculates the total sequence length for each input file.
+
+        Args:
+            sequences_by_species (list): List of dictionaries with "filename" and "sequences" keys.
+
+        Returns:
+            sequence_lengths (dict): Dictionary with filenames as keys and total sequence lengths as values.
+        """
+    sequence_lengths = {
+        entry["filename"]: sum(len(sequence) for sequence in entry["sequences"])
+        for entry in sequences_by_species
+    }
 
     return sequence_lengths
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
     k_values = list(sys.argv[2].split(','))
-    table_inclusion_threshold = sys.argv[3]
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    kmer_counts = kmer_counter_multi_input(seqs, k_values, table_inclusion_threshold)
+    kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
     # create a folder to store the tsv files in
     output_folder = "kmer_results"
