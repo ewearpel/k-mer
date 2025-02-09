@@ -1,0 +1,9 @@
+input_dir: data
+samples:
+  - C.turicensis_non-halo.faa.gz
+  - S.aureus_halo.faa.gz
+k_values:
+  - 3
+  - 4
+  - 5
+table_inclusion_threshold: 5

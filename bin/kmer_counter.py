@@ -84,22 +84,18 @@ def count_sequence_length(sequences_by_species):
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
-    k_values = list(sys.argv[2].split(','))
+    output_dir_k = sys.argv[2]
+    output_dir_seq = sys.argv[3]
+    k_values = list(sys.argv[4].split(','))
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
     kmer_counts = kmer_counter_multi_input(seqs, k_values)
 
-    # create a folder to store the tsv files in
-    #input_filenames = "_".join([entry["filename"] for entry in seqs])
-    output_folder = f"kmer_results/"
-    os.makedirs(output_folder, exist_ok=True)
-
-
     # Save k-mer count tables as TSV files
     for k, df in kmer_counts.items():
-        output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
+        output_file = os.path.join(output_dir_k, f'kmer_counts_{k}.tsv')
         df.to_csv(output_file, sep='\t')
         print(f"{k[1]}-mer count table saved to {output_file}", flush=True)
 
@@ -108,7 +104,8 @@ if __name__ == '__main__':
     # Calculate and save sequence lengths
     sequence_length = count_sequence_length(seqs)
 
-    with open('sequence_lengths.json', 'w') as output:
+    sequence_length_file = os.path.join(output_dir_seq,'sequence_lengths.json')
+    with open(sequence_length_file, 'w') as output:
         json.dump(sequence_length, output)
 
     print("Sequence lengths have been successfully saved to 'sequence_lengths.json'", flush=True)
