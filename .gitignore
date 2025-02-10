@@ -10,3 +10,4 @@ sequence_lengths.json
 .idea/**.*
 intermediate/
 results/
+.snakemake/
