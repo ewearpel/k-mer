@@ -6,4 +6,4 @@ k_values:
   - 3
   - 4
   - 5
-table_inclusion_threshold: 5
+table_inclusion_threshold: 0

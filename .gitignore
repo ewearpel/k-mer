@@ -11,3 +11,4 @@ sequence_lengths.json
 intermediate/
 results/
 .snakemake/
+*.png
