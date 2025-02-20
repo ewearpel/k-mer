@@ -5,6 +5,7 @@ from scipy.stats import chi2_contingency
 import pandas as pd
 import re
 import numpy as np
+import os
 
 def cramers_v(chi2, n, r, c):
     return np.sqrt(chi2 / (n * min(r - 1, c - 1)))
@@ -39,7 +40,10 @@ def chi2_test(tsv_paths, table_inclusion_threshold):
             cramers_v_value = cramers_v(chi2, n, r, c)
 
             chi2_results['chi2'] = round(float(chi2), 3)
-            chi2_results['p'] = float(p)
+            if p < 1e-2 and p != 0.0:
+                chi2_results['p'] = "{:.2e}".format(p)  # wissenschaftliche Notation für sehr kleine p-Werte
+            else:
+                chi2_results['p'] = round(float(p), 2)
             chi2_results['dof'] = dof
             chi2_results['cramers v'] = round(float(cramers_v_value), 3)
 
@@ -54,17 +58,19 @@ def chi2_results_table(chi2_dict, output_path):
     labels = labels + add_labels
 
     with open(output_path, 'w') as file:
-        file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*labels))
+        file.write("{:<15} {:<15} {:<15} {:<15} {:<15}\n".format(*labels))
 
         for key, values in chi2_dict.items():
             row = [key[1]] + list(values.values())
-            file.write("{:<15} {:<10} {:<10} {:<10} {:<10}\n".format(*row))
+            file.write("{:<15} {:<15} {:<15} {:<15} {:<15}\n".format(*row))
 
 
 if __name__ == '__main__':
-    tsv_paths = sys.argv[1].split(',')
-    table_inclusion_threshold = sys.argv[2]
+    table_inclusion_threshold = sys.argv[1]
+    output_dir = sys.argv[2]
+    tsv_paths = sys.argv[3:]
 
 
     chi2_dict = chi2_test(tsv_paths,table_inclusion_threshold)
-    chi2_results_table(chi2_dict, 'chi2_results.txt')
+    output_path = os.path.join(output_dir,'chi2_results.txt')
+    chi2_results_table(chi2_dict, output_path)

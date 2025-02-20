@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
-from collections import Counter
 import json
 import pandas as pd
 import os
+import numpy as np
+from collections import Counter
+from multiprocessing import Pool, cpu_count
 
 def kmer_counter(sequence, k):
     """
@@ -26,7 +28,8 @@ def kmer_counter(sequence, k):
 
     return kmer_count
 
-def kmer_counter_multi_input(input_list, k_values):
+
+def kmer_counter_multi_input(input_list, k_values, output_dir):
     """
     Counts k-mers for multiple input files and generates k-mer count contingency tables.
 
@@ -36,10 +39,8 @@ def kmer_counter_multi_input(input_list, k_values):
         table_inclusion_threshold (int): minimal k-mer frequency per cell for column to be included in contingency table
 
     Returns:
-         result (dict): dictionary containing one contingency table as pd.DataFrame per input k-mer length
+         .tsv files containing contingency table for each k-mer length
     """
-    result = {}
-
     for k in k_values:
         k = int(k) # convert k string from command line to integer
 
@@ -47,25 +48,20 @@ def kmer_counter_multi_input(input_list, k_values):
         filenames = [] # store filenames in a list
 
         for entry in input_list: # iterate over elements in dict representing input files
-            counts = Counter() # set up Counter() object
-            for seq in entry["sequences"]: # iterate over sequences
-                counts.update(kmer_counter(seq, k)) # count k-mers with k_mer counter
+            counts = Counter(kmer for seq in entry["sequences"] for kmer, count in kmer_counter(seq, k).items() for _ in range(count))
             input_counts_list.append(counts) # append Counter() objects to list
             filenames.append(entry["filename"]) # append filenames to list
 
-        # create pd.DataFrame from Counter() objects
+        # create pd.DataFrame from Counter() objects and save to tsv file
         kmer_table = pd.DataFrame.from_records(input_counts_list).fillna(0).astype(int)
-
-        # set index to filenames so that we know which data belongs to which input
         kmer_table.index = filenames
+        output_file = os.path.join(output_dir, f'kmer_counts_k{k}.tsv')
+        kmer_table.to_csv(output_file, sep='\t')
+        print(f"{k}-mer count table saved to {output_file}", flush=True)
 
 
-        result[f'k{k}'] = kmer_table # create dictionary of tables
 
-    return result
-
-
-def count_sequence_length(sequences_by_species):
+def count_sequence_length(sequences_by_species, output_dir_seq):
     """
         Calculates the total sequence length for each input file.
 
@@ -80,35 +76,20 @@ def count_sequence_length(sequences_by_species):
         for entry in sequences_by_species
     }
 
-    return sequence_lengths
+    sequence_length_file = os.path.join(output_dir_seq, 'sequence_lengths.json')
+    with open(sequence_length_file, 'w') as output:
+        json.dump(sequence_lengths, output)
+
+    print("Sequence lengths saved to 'sequence_lengths.json'", flush=True)
 
 if __name__ == '__main__':
     seqs_json = sys.argv[1]
-    k_values = list(sys.argv[2].split(','))
+    output_dir_k = sys.argv[2]
+    output_dir_seq = sys.argv[3]
+    k_values = list(sys.argv[4].split(','))
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)
 
-    kmer_counts = kmer_counter_multi_input(seqs, k_values)
-
-    # create a folder to store the tsv files in
-    #input_filenames = "_".join([entry["filename"] for entry in seqs])
-    output_folder = f"kmer_results/"
-    os.makedirs(output_folder, exist_ok=True)
-
-
-    # Save k-mer count tables as TSV files
-    for k, df in kmer_counts.items():
-        output_file = os.path.join(output_folder, f'kmer_counts_{k}.tsv')
-        df.to_csv(output_file, sep='\t')
-        print(f"{k[1]}-mer count table saved to {output_file}", flush=True)
-
-    print("k-mer count tables have been successfully saved to the folder 'kmer_results'", flush=True)
-
-    # Calculate and save sequence lengths
-    sequence_length = count_sequence_length(seqs)
-
-    with open('sequence_lengths.json', 'w') as output:
-        json.dump(sequence_length, output)
-
-    print("Sequence lengths have been successfully saved to 'sequence_lengths.json'", flush=True)
+    kmer_counter_multi_input(seqs, k_values, output_dir_k)
+    count_sequence_length(seqs, output_dir_seq)

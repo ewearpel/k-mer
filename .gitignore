@@ -8,4 +8,7 @@ input_seqs.json
 normalized_descriptive_statistics.json
 sequence_lengths.json
 .idea/**.*
-
+intermediate/
+results/
+.snakemake/
+*.png

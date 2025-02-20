@@ -53,16 +53,13 @@ if __name__ == "__main__":
         print("Usage: python parse_input.py <file1> <file2> ... <fileN>")
         sys.exit(1)
 
-    filenames = list(sys.argv[1:])
+    output_file = sys.argv[1]
+    filenames = sys.argv[2:]
 
-    # ensure that the filepaths specified on the command line for nf pipeline are processed correctly
-    script_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    filenames = [os.path.join(script_dir, file) for file in filenames]
     print(f"Processing files: {filenames}")
     input_seqs = parse_input(filenames)
 
-    with open('input_seqs.json', 'w') as output:
-        json.dump(input_seqs, output) # dump list of lists of sequences to a json file
+    with open(output_file, 'w') as output:
+        json.dump(input_seqs, output)  # Save directly to the specified output file
 
-    print(f"Sequences have been successfully saved to 'input_seqs.json'", flush=True)
-
+    print(f"Sequences have been successfully saved to '{output_file}'", flush=True)

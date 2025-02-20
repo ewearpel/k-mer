@@ -1,8 +1,6 @@
 # k-mer project
-
-## Usage:
-To run the Nextflow pipeline, use the following command:
-
+## Usage:  
+To run Snakemake pipeline, run the following command from your working directory:
 ```bash
-nextflow run main.nf --input "<file1> <file2> ... <fileN>" --kmer <k1>,<k2>,...,<kN> --threshold <integer>
+snakemake -c threads -s /path/to/Snakefile --configfile /path/to/config.yaml 
 ```
