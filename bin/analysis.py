@@ -71,7 +71,7 @@ def statistics_to_table(calculated_statistics):
 
     return table_df
 
-def plot_statistic_boxplots(calculated_statistics, output_folder="boxplots",  title_prefix="Descriptive Statistics"):
+def plot_statistic_boxplots(calculated_statistics, output_folder,  title_prefix="Descriptive Statistics"):
 
 
     # Convert the nested dictionary into a long-form DataFrame
@@ -117,10 +117,11 @@ def plot_statistic_boxplots(calculated_statistics, output_folder="boxplots",  ti
 
 
 if __name__ == "__main__":
-
     # Load the file path from command-line arguments
-    tsv_paths = sys.argv[1].split(' ')
-    lengths_path = sys.argv[2]
+    output_dir_box = sys.argv[1]
+    output_dir_stats = sys.argv[2]
+    lengths_path = sys.argv[3]
+    tsv_paths = sys.argv[4:]
 
     with open(lengths_path, 'r') as file:
         sequence_lengths = json.load(file)
@@ -128,10 +129,12 @@ if __name__ == "__main__":
     # calculate statistics
     stats, normalized_stats = calculate_descriptive_statistics(tsv_paths)
 
-    with open('descriptive_statistics.json', 'w') as output:
+    descriptive_path = os.path.join(output_dir_stats, 'descriptive_statistics.json')
+    with open(descriptive_path, 'w') as output:
         json.dump(stats, output)
 
-    with open('normalized_descriptive_statistics.json', 'w') as output:
+    norm_descriptive_path = os.path.join(output_dir_stats,'normalized_descriptive_statistics.json')
+    with open(norm_descriptive_path, 'w') as output:
         json.dump(normalized_stats, output)
 
     print("Successfully calculated descriptive statistics!")
@@ -140,17 +143,7 @@ if __name__ == "__main__":
     absolute_table = statistics_to_table(stats)
     normalized_table = statistics_to_table(normalized_stats)
 
-    print("\nabsolute statistics:") # \n for better visibility
-    print(absolute_table.to_string(index=False))
-
-    print("\nnormalized statistics:")
-    print(normalized_table.to_string(index=False))
-
-    # Make sure the output folder for the boxplots exists:
-    boxplots_folder = "boxplots"
-    os.makedirs(boxplots_folder, exist_ok=True)
-
-    boxplots = plot_statistic_boxplots(normalized_stats)
+    plot_statistic_boxplots(normalized_stats, output_dir_box)
 
 
 

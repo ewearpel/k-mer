@@ -2,7 +2,8 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        "results/chi2_results.txt"
+        "results/chi2_results.txt",
+        expand("intermediate/boxplots/boxplots_k{k}.png", k=config["k_values"])
 
 rule parse_input:
     input:
@@ -25,6 +26,18 @@ rule count_kmers:
     shell:
         '''
         python3 bin/kmer_counter.py {input} "intermediate/kmer_results" "intermediate" {params.k_values}
+        '''
+
+rule analysis:
+    input:
+        kmer_results=expand("intermediate/kmer_results/kmer_counts_k{k}.tsv",k=config["k_values"]),
+        sequence_lengths="intermediate/sequence_lengths.json"
+    output:
+        expand("intermediate/boxplots/boxplots_k{k}.png",k=config["k_values"])
+    shell:
+        '''
+        python3 bin/analysis.py "intermediate/boxplots" "intermediate" {input.sequence_lengths} \
+        {input.kmer_results}
         '''
 
 rule chi2:
