@@ -1,5 +1,36 @@
 #!/usr/bin/env python3
 
+"""
+analysis.py
+
+This script calculates descriptive statistics for k-mer counts across species and generates boxplots for visualization.
+It processes k-mer count TSV files and sequence lengths to produce both raw and normalized statistics.
+
+Functions:
+    calculate_descriptive_statistics(kmer_data) -> tuple[dict, dict]:
+        Calculate descriptive statistics (mean, median, variance, std dev, max count) for each species
+        from k-mer count data, both raw and normalized by sequence length.
+
+    statistics_to_table(calculated_statistics: dict) -> pandas.DataFrame:
+        Convert the calculated statistics into a pandas DataFrame for easy export or reporting.
+
+    plot_statistic_boxplots(calculated_statistics: dict, output_folder: str, title_prefix: str = "Descriptive Statistics"):
+        Generate boxplots for each k-mer size across species and save them as PNG files.
+
+Main Execution:
+    Command-line arguments:
+        1. output_dir_box (str): Directory for saving boxplots.
+        2. output_dir_stats (str): Directory for saving statistics in JSON format.
+        3. lengths_path (str): JSON file path containing the sequence lengths for each species.
+        4. tsv_paths (list of str): Paths to the k-mer count TSV files.
+
+    Workflow:
+        1. Load sequence lengths and k-mer counts.
+        2. Calculate descriptive statistics.
+        3. Save statistics as JSON files.
+        4. Plot boxplots for normalized statistics.
+"""
+
 import sys
 import json
 import numpy as np

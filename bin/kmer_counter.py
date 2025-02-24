@@ -1,5 +1,39 @@
 #!/usr/bin/env python3
 
+"""
+kmer_counter.py
+
+This script focuses on the efficient counting of k-mers from DNA sequences and provides functionality for generating k-mer count dictionaries.
+It supports both single-sequence and multi-sequence processing.
+
+Functions:
+    count_kmers(sequence: str, k: int) -> dict:
+        Counts k-mers of length `k` in a given DNA sequence and returns a dictionary where keys are k-mers and values are their counts.
+
+    merge_kmer_counts(kmer_dicts: list[dict]) -> dict:
+        Merges multiple k-mer count dictionaries into a single dictionary, summing the counts for any overlapping k-mers.
+
+    write_kmer_counts_to_file(kmer_counts: dict, output_file: str):
+        Writes the k-mer counts to a file in TSV format, with one k-mer and its count per line.
+
+    process_fasta_file(fasta_path: str, k: int) -> dict:
+        Processes a FASTA file, counts k-mers for each sequence, and returns a dictionary of k-mer counts.
+
+    kmer_counter_from_fasta_paths(fasta_paths: list[str], k: int, output_dir: str):
+        Iterates over multiple FASTA files, computes k-mer counts for each, and saves them in TSV format.
+
+Main Execution:
+    Command-line arguments:
+        1. fasta_paths (list of str): List of paths to the FASTA files to be processed.
+        2. k (int): Length of k-mers to be counted.
+        3. output_dir (str): Directory where k-mer count TSV files will be saved.
+
+    Workflow:
+        1. Read DNA sequences from FASTA files.
+        2. Count k-mers for each sequence.
+        3. Save the results to the specified output directory in TSV format.
+"""
+
 import sys
 import json
 import pandas as pd

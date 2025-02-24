@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module parse_input</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">parse_input</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/home/rennig/Dokumente/k-mer/bin/parse_input.py">/home/rennig/Dokumente/k-mer/bin/parse_input.py</a></td></tr></table>
+    <p><span class="code">parse_input.py<br>
+&nbsp;<br>
+This&nbsp;script&nbsp;parses&nbsp;input&nbsp;DNA&nbsp;sequence&nbsp;files&nbsp;in&nbsp;FASTA&nbsp;format,&nbsp;handling&nbsp;both&nbsp;gzip-compressed&nbsp;and&nbsp;plain&nbsp;text&nbsp;files.&nbsp;It&nbsp;extracts&nbsp;sequences&nbsp;from&nbsp;multiple&nbsp;input&nbsp;files,&nbsp;storing&nbsp;them&nbsp;in&nbsp;a&nbsp;structured&nbsp;format,&nbsp;and&nbsp;saves&nbsp;the&nbsp;results&nbsp;in&nbsp;a&nbsp;JSON&nbsp;file.<br>
+&nbsp;<br>
+Functions:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-parse_input">parse_input</a>(file_paths:&nbsp;list[str])&nbsp;-&gt;&nbsp;list[dict]:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parses&nbsp;a&nbsp;list&nbsp;of&nbsp;input&nbsp;FASTA&nbsp;files&nbsp;and&nbsp;extracts&nbsp;sequences&nbsp;into&nbsp;a&nbsp;list&nbsp;of&nbsp;dictionaries.&nbsp;Each&nbsp;dictionary&nbsp;contains&nbsp;the&nbsp;filename&nbsp;and&nbsp;its&nbsp;associated&nbsp;sequences.<br>
+&nbsp;<br>
+Main&nbsp;Execution:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Command-line&nbsp;arguments:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;output_file&nbsp;(str):&nbsp;Path&nbsp;where&nbsp;the&nbsp;output&nbsp;JSON&nbsp;file&nbsp;will&nbsp;be&nbsp;saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;filenames&nbsp;(list&nbsp;of&nbsp;str):&nbsp;List&nbsp;of&nbsp;paths&nbsp;to&nbsp;the&nbsp;input&nbsp;FASTA&nbsp;files&nbsp;to&nbsp;be&nbsp;processed.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Workflow:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;Read&nbsp;sequences&nbsp;from&nbsp;the&nbsp;input&nbsp;FASTA&nbsp;files.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;Parse&nbsp;the&nbsp;sequences&nbsp;and&nbsp;store&nbsp;them&nbsp;in&nbsp;a&nbsp;structured&nbsp;format.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;Save&nbsp;the&nbsp;parsed&nbsp;sequences&nbsp;to&nbsp;a&nbsp;JSON&nbsp;file&nbsp;specified&nbsp;by&nbsp;the&nbsp;user.</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="gzip.html">gzip</a><br>
+</td><td class="multicolumn"><a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-parse_input"><strong>parse_input</strong></a>(file_paths)</dt><dd><span class="code">Reads&nbsp;input&nbsp;files&nbsp;(FASTA&nbsp;format),&nbsp;parses&nbsp;them,&nbsp;and&nbsp;stores&nbsp;contained&nbsp;sequences&nbsp;in&nbsp;a&nbsp;list&nbsp;of&nbsp;lists.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;file_paths&nbsp;(list&nbsp;of&nbsp;str):&nbsp;File&nbsp;paths&nbsp;obtained&nbsp;from&nbsp;command&nbsp;line&nbsp;arguments.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;input_data&nbsp;(list&nbsp;of&nbsp;dictionaries):&nbsp;Each&nbsp;dictionary&nbsp;corresponds&nbsp;to&nbsp;input&nbsp;file,&nbsp;contains&nbsp;filename<br>
+&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;sequences.</span></dd></dl>
+</td></tr></table>
+</body></html>

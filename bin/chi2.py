@@ -1,5 +1,34 @@
 #!/usr/bin/env python3
 
+"""
+chi2.py
+
+This script performs chi-square tests on k-mer count tables (TSV files) and calculates Cramér's V as a measure of association.
+It produces a summary table of chi-square results for each k-mer size.
+
+Functions:
+    cramers_v(chi2: float, n: int, r: int, c: int) -> float:
+        Compute Cramér's V statistic based on chi-square, number of observations, and matrix dimensions.
+
+    chi2_test(tsv_paths: list of str, table_inclusion_threshold: int) -> dict:
+        Perform chi-square tests on k-mer count tables. Filter columns based on the inclusion threshold.
+
+    chi2_results_table(chi2_dict: dict, output_path: str):
+        Save the chi-square results (chi-square value, p-value, degrees of freedom, and Cramér's V) to a text file.
+
+Main Execution:
+    Command-line arguments:
+        1. table_inclusion_threshold (int): Minimum frequency required for k-mers to be included in the table.
+        2. output_dir (str): Directory for saving the chi-square results.
+        3. tsv_paths (list of str): Paths to the k-mer count TSV files.
+
+    Workflow:
+        1. Load k-mer count tables.
+        2. Perform chi-square tests on the k-mer counts.
+        3. Calculate Cramér's V.
+        4. Save chi-square test results to a file.
+"""
+
 import sys
 from scipy.stats import chi2_contingency
 import pandas as pd

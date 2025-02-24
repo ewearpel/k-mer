@@ -1,5 +1,25 @@
 #!/usr/bin/env python3
 
+"""
+parse_input.py
+
+This script parses input DNA sequence files in FASTA format, handling both gzip-compressed and plain text files. It extracts sequences from multiple input files, storing them in a structured format, and saves the results in a JSON file.
+
+Functions:
+    parse_input(file_paths: list[str]) -> list[dict]:
+        Parses a list of input FASTA files and extracts sequences into a list of dictionaries. Each dictionary contains the filename and its associated sequences.
+
+Main Execution:
+    Command-line arguments:
+        1. output_file (str): Path where the output JSON file will be saved.
+        2. filenames (list of str): List of paths to the input FASTA files to be processed.
+
+    Workflow:
+        1. Read sequences from the input FASTA files.
+        2. Parse the sequences and store them in a structured format.
+        3. Save the parsed sequences to a JSON file specified by the user.
+"""
+
 import sys
 import gzip
 import json
