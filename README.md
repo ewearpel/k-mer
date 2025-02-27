@@ -90,7 +90,7 @@ For **analyzing you own data** be sure to:
 - change input_dir in the `config.yaml` if necessary
 - add the filename to the samples section of `config.yaml`
   
-You can add as many files as you like. But keep in mind that the chi-square test and Cramer's V only provide reliable results if two input-species are compared.
+The tool is equipped to handle a multitude of files.
 
 ### Results
 After running the Snakemake pipeline, the results can be found within the separately created folder `results`. Intermediate results (like the k-mer counts, descriptive statistics, boxplots etc.) can be found within the separately created folder `intermediate`.
