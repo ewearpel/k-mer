@@ -66,7 +66,7 @@ python ./bin/scriptname.py argument1 argument2
 ```
 ### Customization
 The `config.yaml` file contains the customizable parts of the Snakemake pipeline. Here you can:
-- change the **input directory**, if you want to copy-and-paste a whole folder of input data instead of adding them one-by-one
+- change the **input directory** containing the samples
 - change the **samples** to be analyzed (as long as the files are inside the input_dir)
 - change the **k-mer size**
 - change the **table inclusion threshold** for the chi-square test (recommended to use a number between 1 and 20)
@@ -86,9 +86,10 @@ table_inclusion_threshold: 5
 ```
 
 For **analyzing you own data** be sure to:
-- add your .faa.gz file (acquired by e.g. UniProt) to the folder `data`
-- add the filename to the samples-section of `config.yaml`
-
+- add your input file (FASTA and gzipped FASTA format, acquired at e.g. UniProt) to the folder `data` (or an input_dir of your choice)
+- change input_dir in the `config.yaml` if necessary
+- add the filename to the samples section of `config.yaml`
+  
 You can add as many files as you like. But keep in mind that the chi-square test and Cramer's V only provide reliable results if two input-species are compared.
 
 ### Results
