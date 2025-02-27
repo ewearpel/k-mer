@@ -11,22 +11,31 @@ The python scripts are embedded into a Snakemake pipeline for easier execution. 
 
 ## Installation
 ### Prerequisites
-- **Python**
+- **Python 3.x**
 - **Snakemake**
 - **Required Python libraries/packages** listed in `requirements.txt`
 
 In case you are working with a Windows operating system instead of Linux, using WSL (Windows Subsystem for Linux) is recommended.
 
 ### Setup
-1. Clone the repository in the desired directory:
+1. clone the repository in the desired directory:
    ```bash
    git clone https://github.com/ewearpel/k-mer
    ``` 
 2. install dependencies:
    ```bash
-   pip install snakemake
    pip install -r ./requirements.txt
    ```
+3. install snakemake:
+    ```
+    pip install snakemake
+    ```
+    or if using conda:
+    ```
+    conda install -c bioconda -c conda-forge snakemake
+    ```
+    Otherwise, check out the installation guide on the official snakemake website: https://snakemake.readthedocs.io/en/v5.6.0/getting_started/installation.html
+
 
 ## Directory Structure
 The structure of our directory `k-mer` looks like:
@@ -37,6 +46,8 @@ The structure of our directory `k-mer` looks like:
 - `Snakefile`: contains necessities for the Snakemake pipeline
 - `config.yaml`: contains the customizable parts for the Snakemake pipeline
 - `requirements.txt`: contains a list of required libraries/packages to execute the code
+
+When cloned from the repository, the folder `data` contains test cases which have to be replaced by the data you want to analyze.
 
 ## Usage
 ### Running the Code
@@ -83,4 +94,4 @@ You can add as many files as you like. But keep in mind that the chi-square test
 ### Results
 After running the Snakemake pipeline, the results can be found within the separately created folder `results`. Intermediate results (like the k-mer counts, descriptive statistics, boxplots etc.) can be found within the separately created folder `intermediate`.
 
-**Attention**: When running the Snakemake pipeline, results from previous runs are overwritten. So, if you run it multiple times, be sure to save the results somewhere else.
+**Attention**: When running the Snakemake pipeline, results from previous runs are overwritten, if `config.yaml` has been changed in-between runs. So, if you run it multiple times with different data, be sure to save the results somewhere else. Preferably, you could run the program from a project-specific directory to bypass this.
