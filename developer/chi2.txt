@@ -36,7 +36,3 @@ FUNCTIONS
 
     cramers_v(chi2, n, r, c)
 
-FILE
-    /home/rennig/Dokumente/k-mer/bin/chi2.py
-
-

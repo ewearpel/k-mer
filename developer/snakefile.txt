@@ -1,0 +1,78 @@
+NAME
+    Snakefile - Snakefile for k-mer analysis pipeline
+
+DESCRIPTION
+    This Snakefile defines the rules for a bioinformatics pipeline that performs k-mer counting, statistical analysis, and Chi-square tests. The pipeline is configured using a YAML file (`config.yaml`), which specifies k-mer sizes, input file paths, and other parameters.
+
+    Rules:
+        - all: The final target that triggers the pipeline. It depends on the Chi-square test results and k-mer analysis boxplots.
+        
+        - parse_input: This rule parses input FASTA files and generates a JSON file containing the sequences.
+        
+        - count_kmers: This rule counts k-mers for each sequence, saving the results as TSV files and a sequence length file.
+        
+        - analysis: This rule generates descriptive statistics and boxplots based on k-mer counts.
+        
+        - chi2: This rule performs Chi-square tests on the k-mer counts and calculates Cramér's V as a measure of association.
+
+RULES
+    rule all:
+        Defines the final target of the pipeline. It depends on:
+            - "results/chi2_results.txt"
+            - A set of boxplot PNG files for each k-mer size specified in the configuration.
+
+    rule parse_input:
+        Parses input FASTA files and extracts sequences into a JSON file.
+        
+        Input:
+            - A list of input FASTA files for each sample, specified by `config["samples"]` and `config["input_dir"]`.
+            
+        Output:
+            - "intermediate/input_seqs.json": A JSON file containing parsed sequences.
+        
+        Shell command:
+            `python3 bin/parse_input.py {output} {input}`
+
+    rule count_kmers:
+        Counts k-mers in the parsed sequences.
+        
+        Input:
+            - The output JSON file from the `parse_input` rule.
+        
+        Output:
+            - "intermediate/kmer_results/kmer_counts_k{k}.tsv": TSV files containing k-mer counts for each k-mer size.
+            - "intermediate/sequence_lengths.json": A JSON file with sequence lengths for each sample.
+        
+        Parameters:
+            - `k_values`: A comma-separated list of k-mer sizes to count, based on `config["k_values"]`.
+        
+        Shell command:
+            `python3 bin/kmer_counter.py {input} "intermediate/kmer_results" "intermediate" {params.k_values}`
+
+    rule analysis:
+        Generates descriptive statistics and boxplots for the k-mer counts.
+        
+        Input:
+            - A set of TSV files with k-mer counts, for each k-mer size.
+            - "intermediate/sequence_lengths.json": A JSON file with sequence lengths.
+        
+        Output:
+            - A set of PNG files with boxplots for each k-mer size.
+        
+        Shell command:
+            `python3 bin/analysis.py "intermediate/boxplots" "intermediate" {input.sequence_lengths} {input.kmer_results}`
+
+    rule chi2:
+        Performs Chi-square tests and calculates Cramér's V for the k-mer counts.
+        
+        Input:
+            - A set of TSV files with k-mer counts, produced by the `count_kmers` rule.
+        
+        Output:
+            - "results/chi2_results.txt": A text file summarizing the Chi-square test results.
+        
+        Parameters:
+            - `threshold`: The table inclusion threshold for filtering k-mers, based on `config["table_inclusion_threshold"]`.
+        
+        Shell command:
+            `python3 bin/chi2.py {params.threshold} "results" {input}`

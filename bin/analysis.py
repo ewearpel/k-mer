@@ -154,6 +154,10 @@ if __name__ == "__main__":
     lengths_path = sys.argv[3]
     tsv_paths = sys.argv[4:]
 
+    if len(sys.argv) < 5:
+        print("Usage: python analysis.py <output_dir_box> <output_dir_stats> <lengths_path.json> <kmer_tsv_paths...>")
+        sys.exit(1)
+
     with open(lengths_path, 'r') as file:
         sequence_lengths = json.load(file)
 

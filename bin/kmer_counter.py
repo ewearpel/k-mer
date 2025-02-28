@@ -3,12 +3,12 @@
 """
 kmer_counter.py
 
-This script focuses on the efficient counting of k-mers from DNA sequences and provides functionality for generating k-mer count dictionaries.
+This script focuses on the efficient counting of k-mers from biological sequences and provides functionality for generating k-mer count dictionaries.
 It supports both single-sequence and multi-sequence processing.
 
 Functions:
     count_kmers(sequence: str, k: int) -> dict:
-        Counts k-mers of length `k` in a given DNA sequence and returns a dictionary where keys are k-mers and values are their counts.
+        Counts k-mers of length `k` in a given biological sequence and returns a dictionary where keys are k-mers and values are their counts.
 
     merge_kmer_counts(kmer_dicts: list[dict]) -> dict:
         Merges multiple k-mer count dictionaries into a single dictionary, summing the counts for any overlapping k-mers.
@@ -29,7 +29,7 @@ Main Execution:
         3. output_dir (str): Directory where k-mer count TSV files will be saved.
 
     Workflow:
-        1. Read DNA sequences from FASTA files.
+        1. Read biological sequences from FASTA files.
         2. Count k-mers for each sequence.
         3. Save the results to the specified output directory in TSV format.
 """
@@ -53,7 +53,6 @@ def kmer_counter(sequence, k):
     Returns:
         kmer_count (dict): {k-mer: count}
     """
-
     kmer_count = Counter() # sets up kmer_count as Counter object which is a subclass of dict
     k = int(k) # converts input string for k-mer length to integer
     for i in range((len(sequence)) - k + 1): # iterates over the entire sequence
@@ -121,6 +120,11 @@ if __name__ == '__main__':
     output_dir_k = sys.argv[2]
     output_dir_seq = sys.argv[3]
     k_values = list(sys.argv[4].split(','))
+
+    if len(sys.argv) < 5:
+        print(
+            "Usage: python kmer_counter.py <input_sequences.json> <output_dir_k> <output_dir_seq> <k-mer_values_comma_separated>")
+        sys.exit(1)
 
     with open(seqs_json, 'r') as file:
         seqs = json.load(file)

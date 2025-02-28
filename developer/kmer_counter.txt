@@ -4,12 +4,12 @@ NAME
     kmer_counter - kmer_counter.py
 
 DESCRIPTION
-    This script focuses on the efficient counting of k-mers from DNA sequences and provides functionality for generating k-mer count dictionaries.
+    This script focuses on the efficient counting of k-mers from biological sequences and provides functionality for generating k-mer count dictionaries.
     It supports both single-sequence and multi-sequence processing.
 
     Functions:
         count_kmers(sequence: str, k: int) -> dict:
-            Counts k-mers of length `k` in a given DNA sequence and returns a dictionary where keys are k-mers and values are their counts.
+            Counts k-mers of length `k` in a given biological sequence and returns a dictionary where keys are k-mers and values are their counts.
 
         merge_kmer_counts(kmer_dicts: list[dict]) -> dict:
             Merges multiple k-mer count dictionaries into a single dictionary, summing the counts for any overlapping k-mers.
@@ -30,7 +30,7 @@ DESCRIPTION
             3. output_dir (str): Directory where k-mer count TSV files will be saved.
 
         Workflow:
-            1. Read DNA sequences from FASTA files.
+            1. Read biological sequences from FASTA files.
             2. Count k-mers for each sequence.
             3. Save the results to the specified output directory in TSV format.
 
@@ -64,8 +64,5 @@ FUNCTIONS
 
         Returns:
              .tsv files containing contingency table for each k-mer length
-
-FILE
-    /home/rennig/Dokumente/k-mer/bin/kmer_counter.py
 
 

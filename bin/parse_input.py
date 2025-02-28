@@ -3,7 +3,7 @@
 """
 parse_input.py
 
-This script parses input DNA sequence files in FASTA format, handling both gzip-compressed and plain text files. It extracts sequences from multiple input files, storing them in a structured format, and saves the results in a JSON file.
+This script parses input biological sequence files in FASTA format, handling both gzip-compressed and plain text files. It extracts sequences from multiple input files, storing them in a structured format, and saves the results in a JSON file.
 
 Functions:
     parse_input(file_paths: list[str]) -> list[dict]:

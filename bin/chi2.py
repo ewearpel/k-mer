@@ -99,6 +99,9 @@ if __name__ == '__main__':
     output_dir = sys.argv[2]
     tsv_paths = sys.argv[3:]
 
+    if len(sys.argv) < 4:
+        print("Usage: python chi2.py <table_inclusion_threshold> <output_dir> <kmer_tsv_paths...>")
+        sys.exit(1)
 
     chi2_dict = chi2_test(tsv_paths,table_inclusion_threshold)
     output_path = os.path.join(output_dir,'chi2_results.txt')

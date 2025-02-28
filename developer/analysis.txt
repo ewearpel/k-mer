@@ -38,7 +38,4 @@ FUNCTIONS
 
     statistics_to_table(calculated_statistics)
 
-FILE
-    /home/rennig/Dokumente/k-mer/bin/analysis.py
-
 
