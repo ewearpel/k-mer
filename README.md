@@ -9,6 +9,10 @@ This project is designed to process proteomic data by splitting the aminoacid-se
 
 The python scripts are embedded into a Snakemake pipeline for easier execution. The pipeline can be run on custom data and the user can choose which k-mer sizes should be generated/included in the analysis.
 
+### Flowchart of the project workflow
+For better understanding, here is a flowchart of the project workflow:
+![Project Flowchart](flowchart.png)
+
 ## Installation
 ### Prerequisites
 - **Python 3.x**
