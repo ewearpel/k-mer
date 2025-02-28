@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Author: Sophie Wieser
+
 """
 chi2.py
 

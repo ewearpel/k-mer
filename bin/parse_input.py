@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Author: Marcel Rennig
+
 """
 parse_input.py
 

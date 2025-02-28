@@ -1,3 +1,5 @@
+# Author: Marcel Rennig
+
 configfile: "config.yaml"
 
 rule all:
